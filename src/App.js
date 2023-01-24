@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-
+import './App.css'
 export default function App() {
 
   const dummyData = {
@@ -34,13 +34,16 @@ export default function App() {
   }
 
   const [data, setData] = useState([]);
-  const [counter, setCounter] = useState(0)
+  const [counter, setCounter] = useState(0);
+  let selectedValues = [];
+  let unSelected = [];
 
   useEffect(() => {
     dummyData.name = `select-${counter}`
     setData([dummyData])
     localStorage.setItem('completeData', '')
     localStorage.setItem('dataCounter', counter)
+    console.log(selectedValues)
   }, [])
 
   useEffect(() => {
@@ -66,24 +69,42 @@ export default function App() {
   }
 
   let selectChange = (select, ind) => {
-    console.log(select.current.options)
-    // debugger;
-    // var selectedOptions = select.current.options;
-    // var values = [];
-    // console.log(select, options)
-    // const updatedData = [...data];
-    // console.log(selectedOptions)
-    // for (var i = 0, l = options.length; i < l; i++) {
-    //   if (options[i].selected) {
-    //     updatedData[ind].options[i].selected = true;
-    //     values.push(options[i].value);
-    //   }
-    //   else {
-    //     updatedData[ind].options[i].selected = false;
-    //   }
-    // }
-    // console.log(values)
-    // setData(updatedData)
+    Array.from(document.querySelectorAll('select option:checked')).map((el, index) => {
+      if (!selectedValues.includes(el.value)) {
+        selectedValues.push(el.value)
+        selectedValues.sort()
+      }
+    });
+
+    let newData = [...data];
+    console.log(newData,ind)
+
+    Array.from(document.querySelectorAll('select option:not(:checked):not(:disabled)')).map((unEl, ind) => {
+      selectedValues.map((eleArr, indexArr) => {
+        if (unEl.value == selectedValues[indexArr]) {
+          // selectedValues.splice(indexArr, 1) 
+        }
+      })
+    })
+    console.log(selectedValues)
+
+    let selectID = selectRef.current[ind].current.id
+    console.log(selectID)
+
+    Array.from(document.querySelectorAll(`select:not(#${selectID})`)).map((sel, ind) => {
+      console.log(sel)
+      console.log(sel.getElementsByTagName('option'), typeof(sel.getElementsByTagName('option')))
+      Array.from(sel.getElementsByTagName('option')).map((element, index) => {
+        if (selectedValues.includes(element.value) && !element.selected ) {
+          element.disabled = true;
+        }
+        else {
+          element.disabled = false;
+        }
+      })
+    })
+
+
   }
 
 
@@ -97,7 +118,7 @@ export default function App() {
               <div className="col-3" key={ind}>
                 <div className="form-group mb-3 text-end">
                   {ind}
-                  <select className="form-control" ref={selectRef.current[ind]} id={ele.name} onChange={() => { selectChange(selectRef.current[ind], ind) }} multiple>
+                  <select className="form-control" ref={selectRef.current[ind]} id={`select-${ind}`} onChange={() => { selectChange(selectRef.current[ind], ind) }} multiple>
                     {
                       ele.options.map((opt, i) => {
                         return (
@@ -106,7 +127,7 @@ export default function App() {
                       })
                     }
                   </select>
-                  {ind > 0 ? <button className="bg-danger bg-opacity-50 border-0 mt-2 rounded text-danger" onClick={() => { removeElement(ind) }}> x Remove</button> : ''}
+                  {data.length > 1 ? <button className="bg-danger bg-opacity-50 border-0 mt-2 rounded text-danger" onClick={() => { removeElement(ind) }}> x Remove</button> : ''}
                 </div>
               </div>
             );
