@@ -63,39 +63,38 @@ export default function App() {
   }
 
   let removeElement = (element) => {
+    console.log(element)
+    debugger;
     const newData = [...data];
     newData.splice([element], 1);
     setData(newData)
+    console.log(newData)
   }
 
-  let selectChange = (select, ind) => {
+  const mapAllChecked = (selectID) => {
     Array.from(document.querySelectorAll('select option:checked')).map((el, index) => {
       if (!selectedValues.includes(el.value)) {
         selectedValues.push(el.value)
         selectedValues.sort()
       }
-    });
-
-    let newData = [...data];
-    console.log(newData,ind)
-
-    Array.from(document.querySelectorAll('select option:not(:checked):not(:disabled)')).map((unEl, ind) => {
+    })
+    Array.from(document.querySelectorAll(`select#${selectID} option:not(:checked):not(:disabled)`)).map((unEl, ind) => {
       selectedValues.map((eleArr, indexArr) => {
-        if (unEl.value == selectedValues[indexArr]) {
-          // selectedValues.splice(indexArr, 1) 
+        if (unEl.value == eleArr) {
+          console.log(eleArr,indexArr)
+          selectedValues.splice(indexArr, 1) 
         }
       })
     })
     console.log(selectedValues)
+  }
 
-    let selectID = selectRef.current[ind].current.id
-    console.log(selectID)
-
+  const disableOption = (selectID) => {
     Array.from(document.querySelectorAll(`select:not(#${selectID})`)).map((sel, ind) => {
-      console.log(sel)
-      console.log(sel.getElementsByTagName('option'), typeof(sel.getElementsByTagName('option')))
+      // console.log(sel)
+      // console.log(sel.getElementsByTagName('option'), typeof (sel.getElementsByTagName('option')))
       Array.from(sel.getElementsByTagName('option')).map((element, index) => {
-        if (selectedValues.includes(element.value) && !element.selected ) {
+        if (selectedValues.includes(element.value) && !element.selected) {
           element.disabled = true;
         }
         else {
@@ -103,8 +102,14 @@ export default function App() {
         }
       })
     })
+  }
 
 
+  let selectChange = (select, ind) => {
+    let selectID = selectRef.current[ind].current.id
+    // console.log(selectID)
+    mapAllChecked(selectID);
+    disableOption(selectID);
   }
 
 
@@ -135,6 +140,7 @@ export default function App() {
           <div className="d-flex justify-content-end">
             <button className="btn btn-primary" onClick={() => { addMore() }}>+ Add More</button>
           </div>
+          <pre>{selectedValues}</pre>
           <pre>{JSON.stringify(data)} <br /> {counter}</pre>
         </div>
       </div>
